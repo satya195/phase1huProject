@@ -1,0 +1,111 @@
+.japanese-login-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff0f0;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Noto Serif JP', serif;
+  }
+  
+  .sakura-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('https://i.ibb.co/7R0YZWy/sakura-fall.gif') center/cover no-repeat;
+    z-index: 1;
+    opacity: 0.3;
+    animation: sakuraFlow 30s linear infinite;
+  }
+  
+  @keyframes sakuraFlow {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 1000px 1000px;
+    }
+  }
+  
+  .login-card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    border: 2px solid #e20000;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s;
+  }
+  
+  .kanji-title {
+    font-size: 2.5rem;
+    color: #b90404;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(185, 4, 4, 0.3);
+  }
+  
+  .subtitle {
+    color: #444;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .japanese-input {
+    padding: 12px 20px;
+    border: 1px solid #e20000;
+    border-radius: 30px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+    background-color: #fff8f8;
+    color: #333;
+  }
+  
+  .japanese-input:focus {
+    border-color: #b90404;
+    background: #ffeaea;
+  }
+  
+  .japanese-btn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  .red-btn {
+    background-color: #e20000;
+    color: white;
+  }
+  
+  .red-btn:hover {
+    background-color: #b90404;
+  }
+  
+  .white-btn {
+    background-color: white;
+    color: #e20000;
+    border: 2px solid #e20000;
+  }
+  
+  .white-btn:hover {
+    background-color: #ffeaea;
+  }
+  
