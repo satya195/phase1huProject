@@ -6,7 +6,7 @@ interface LandingPageProps {
 const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
     const [isSignup, setIsSignup] = useState(false);
     return (
-        <div className="japanese-login-container">
+        <div className="japanese-login-container ">
         <div className="sakura-background" />
         <div className="login-card">
           <h1 className="kanji-title">ようこそ (Welcome)</h1>
