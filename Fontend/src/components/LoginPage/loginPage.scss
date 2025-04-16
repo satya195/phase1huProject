@@ -1,111 +1,226 @@
-.japanese-login-container {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff0f0;
-    position: relative;
-    overflow: hidden;
-    font-family: 'Noto Serif JP', serif;
+.landingPage-container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(227deg, #000000, #151b1b);
+  transform-origin: center center;
+  animation: pulse 6s infinite ease-out;
+  z-index: 1;
+}
+
+.content-box {
+  position: relative;
+  z-index: 2;
+  width: 80vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 70vh;
+}
+
+.content {
+  text-align: center;
+  color: white;
+  padding: 20px;
+  user-select: none;
+  margin-bottom: 10vh;
+}
+
+.main-heading {
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px #00fff6, 0 0 20px #00fff6;
+  transition: color 0.5s, text-shadow 0.5s;
+  font-weight: bold;
+}
+
+.main-heading:hover {
+  color: #ff00ff;
+  text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+}
+
+.quote {
+  font-size: 28px;
+  line-height: 1.8;
+  margin: 0.5rem 0;
+  text-shadow: 0 0 8px #00fff6;
+  transition: color 0.5s, text-shadow 0.5s;
+}
+
+.quote:hover {
+  color: #ff00ff;
+  text-shadow: 0 0 8px #ff00ff;
+}
+
+.quote:nth-child(2) {
+  animation: fadeIn 4s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+      transform: scale(1);
+      opacity: 0.7;
   }
-  
-  .sakura-background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: url('https://i.ibb.co/7R0YZWy/sakura-fall.gif') center/cover no-repeat;
-    z-index: 1;
-    opacity: 0.3;
-    animation: sakuraFlow 30s linear infinite;
+  50% {
+      transform: scale(1.1);
+      opacity: 1;
   }
-  
-  @keyframes sakuraFlow {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 1000px 1000px;
-    }
+}
+
+@keyframes fadeIn {
+  0%, 100% {
+      opacity: 0;
   }
-  
-  .login-card {
-    position: relative;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.85);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    border: 2px solid #e20000;
-    backdrop-filter: blur(10px);
-    transition: transform 0.3s;
+  50% {
+      opacity: 1;
   }
-  
-  .kanji-title {
-    font-size: 2.5rem;
-    color: #b90404;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(185, 4, 4, 0.3);
+}
+
+.project-name {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 2.5rem;
+  color: #333;
+  animation: bounce 2s infinite ease-in-out;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  transition: color 0.3s ease;
+}
+
+.main-heading .project-name::before {
+  content: "";
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  border-right: 2px solid #000;
+  animation: typing 3s steps(10) 1s forwards, blink 1s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+      width: 0;
   }
-  
-  .subtitle {
-    color: #444;
-    margin-bottom: 30px;
-    font-size: 1.1rem;
+  to {
+      width: 100%;
   }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+}
+
+@keyframes blink {
+  from,
+  to {
+      border-color: transparent;
   }
-  
-  .japanese-input {
-    padding: 12px 20px;
-    border: 1px solid #e20000;
-    border-radius: 30px;
-    font-size: 1rem;
-    outline: none;
-    transition: 0.3s;
-    background-color: #fff8f8;
-    color: #333;
+  50% {
+      border-color: black;
   }
-  
-  .japanese-input:focus {
-    border-color: #b90404;
-    background: #ffeaea;
+}
+
+@keyframes bounce {
+  0% {
+      transform: translateY(0);
   }
-  
-  .japanese-btn {
-    margin-top: 20px;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  30% {
+      transform: translateY(-5px);
   }
-  
-  .red-btn {
-    background-color: #e20000;
-    color: white;
+  50% {
+      transform: translateY(0);
   }
-  
-  .red-btn:hover {
-    background-color: #b90404;
+  70% {
+      transform: translateY(-3px);
   }
-  
-  .white-btn {
-    background-color: white;
-    color: #e20000;
-    border: 2px solid #e20000;
+  100% {
+      transform: translateY(0);
   }
-  
-  .white-btn:hover {
-    background-color: #ffeaea;
+}
+
+.project-name:hover {
+  animation: colorShift 2s ease infinite alternate;
+}
+
+@keyframes colorShift {
+  0% {
+      color: #b90404;
+      text-shadow: 0 0 10px #b90404, 0 0 20px #d91a09;
+      transition: color 0.5s, text-shadow 0.5s;
   }
-  
+  50% {
+      color: #cf7404;
+      text-shadow: 0 0 10px #cf7404, 0 0 20px #cf7404;
+      transition: color 0.5s, text-shadow 0.5s;
+  }
+  100% {
+      color: #3301bb;
+      text-shadow: 0 0 10px #3301bb, 0 0 20px #3301bb;
+      transition: color 0.5s, text-shadow 0.5s;
+  }
+}
+
+.btn-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 20vh;
+  z-index: 2;
+  position: relative;
+  width: 40% !important;
+}
+
+.login-btn, .signUp-btn {
+  background: #d97809 !important;
+  color: #fff6f6;
+  border: 2px solid #333;
+  padding: 5px 30px !important;
+  margin-top: 20px;
+  font-size: 22px !important;
+  border-radius: 45px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.signUp-btn {
+  background: #0913d9 !important;
+}
+
+.login-btn:hover, .signUp-btn:hover {
+  background: #333;
+  color: #000000;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.login-btn:active {
+  transform: translateY(2px);
+}
+
+.login-btn:focus {
+  outline: none;
+}
+
+.input-field-email, .input-field-password, .input-field-name , .input-field-confirmPassword {
+  width: 100%;
+  color: #fff6f6;
+  padding: 10px;
+  background-color: #333;
+  margin-bottom: 15px;
+  border: 1px solid #00fff6;
+  border-radius: 20px;
+  font-size: 18px;
+}
+
+.login-signup-box {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
