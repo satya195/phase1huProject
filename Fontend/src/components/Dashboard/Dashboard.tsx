@@ -14,9 +14,23 @@ const Dashboard: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [history, setHistory] = useState<{ promptId: string; prompt: string; response: string }[]>([]);
 
+  const getTokenFromCookie = () => {
+    const name = "token=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return null;
+  };
+  const token = getTokenFromCookie();
 
   useEffect(()=>{
     fetchAllPrompts();
+    console.log("Cookies available in Dashboard:",getTokenFromCookie());
   },[])
 
   const successToast = (message: string) =>
@@ -52,7 +66,11 @@ const Dashboard: React.FC = () => {
 
   const handleDeleteAccount = () => {
     axios
-      .post(`/api/delUserAcc`, { userId: userId })
+      .post(`/api/delUserAcc`, { userId: userId },{
+        headers: {
+            Authorization: `Bearer ${token}`
+          }
+      })
       .then((response) => {
         if (response.status === 200) {
           successToast(response.data.message);
@@ -75,6 +93,10 @@ const Dashboard: React.FC = () => {
         userId : userId,
         prompt : inputText,
         promptId :uuidv4()
+      },{
+        headers: {
+            Authorization: `Bearer ${token}`
+          }
       })
       .then((response) => {
         if (response.status === 200) {
@@ -91,6 +113,10 @@ const Dashboard: React.FC = () => {
   const fetchAllPrompts = () =>{
     axios.post(`/api/getAllPrompts`, {
         userId : userId
+      },{
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
       })
       .then((response) => {
         if (response.status === 200) {

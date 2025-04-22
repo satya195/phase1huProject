@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
 import axios from 'axios';
 interface LandingPageProps {
     setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -116,10 +117,10 @@ const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
     axios.post(`/api/loginUser`, { email: email, Password: password })
       .then((response) => {
         if (response.status === 200) {
-          console.log("Login user response ", response);
-          sessionStorage.setItem('userEmail', response.data.email);
-          sessionStorage.setItem('userId', response.data.userId);
-          sessionStorage.setItem('userName', response.data.userName);
+          sessionStorage.setItem('userEmail', response.data.user.email);
+          sessionStorage.setItem('userId', response.data.user.userId);
+          sessionStorage.setItem('userName', response.data.user.userName);
+          Cookies.set('token', response.data.token, { expires: 1, secure: true });
           setIsLoggedIn(true);
           navigate('/dashboard');
           successToast(response.data.message);

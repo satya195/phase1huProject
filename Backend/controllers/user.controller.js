@@ -1,5 +1,7 @@
 import UserList from "../models/users.models.js";
 import PromptList from "../models/prompts.models.js";
+import { generateToken } from "../utils/jwt.js";
+import bcrypt from 'bcryptjs';
 
 export const addUser = async (req, res) => {
     const user = req.body;
@@ -26,10 +28,20 @@ export const addUser = async (req, res) => {
             });
         }
 
-        const newUser = new UserList(user);
+        const hashedPassword = await bcrypt.hash(user.Password, 10);
+        const newUser = new UserList({ ...user, Password: hashedPassword });
         await newUser.save();
-        res.status(200).json({ success: true, message: `User created successfully with email: ${user.email}` });
-
+        const token = generateToken({ id: newUser.userId });
+        res.status(200).json({ 
+            success: true, 
+            message: `User created successfully`, 
+            token, 
+            user: {
+                userId: newUser.userId,
+                userName: newUser.userName,
+                email: newUser.email
+            }
+        });
     } catch (error) {
         console.error("Error in creating user:", error.message);
         res.status(500).json({ 
@@ -44,58 +56,44 @@ export const loginUser = async (req, res) => {
 
     try {
         const userLogin = await UserList.findOne({ email });
-
-        if (userLogin) {
-                // Check if the password matches
-                if (Password === userLogin.Password) {
-                    // Return the user details if password is correct
-                    return res.status(200).json({
-                        success: true,
-                        message: "User found and authenticated",
-                        userId: userLogin.userId,
-                        email: userLogin.email,
-                        userName: userLogin.userName,
-                    });
-                } else {
-                    // Password is incorrect
-                    return res.status(401).json({
-                        success: false,
-                        message: "Invalid credentials"
-                    });
-                }
-         }else {
-            return res.status(404).json({ 
-                success: false, 
-                message: "User not found" 
-            });
+        if (!userLogin) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
-    } catch (error) {
-        console.error("Error in fetching user:", error.message);
-        res.status(500).json({ 
-            success: false, 
-            message: "Server error" 
+
+        const isMatch = await bcrypt.compare(Password, userLogin.Password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Invalid credentials" });
+        }
+
+        const token = generateToken({ id: userLogin.userId });
+
+        return res.status(200).json({
+            success: true,
+            message: "User authenticated",
+            token,
+            user: {
+                userId: userLogin.userId,
+                email: userLogin.email,
+                userName: userLogin.userName,
+            }
         });
+
+    } catch (error) {
+        console.error("Error in login:", error.message);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
 export const deleteUser = async (req, res) => {
-    const { userId } = req.body; // Only userId is provided
+    const userId = req.user.id;
 
     try {
-        // Find the user in the UserList by userId
         const userLogin = await UserList.findOne({ userId });
-
         if (!userLogin) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "User not found" 
-            });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Delete the user from UserList
         await UserList.deleteOne({ userId });
-
-        // Delete all tasks associated with the user from TaskList
         await PromptList.deleteMany({ userId });
 
         return res.status(200).json({
@@ -105,9 +103,6 @@ export const deleteUser = async (req, res) => {
 
     } catch (error) {
         console.error("Error in deleting user account:", error.message);
-        res.status(500).json({ 
-            success: false, 
-            message: "Server error" 
-        });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
