@@ -10,6 +10,7 @@ interface LandingPageProps {
   }
 const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
   const navigate = useNavigate(); 
+  // const basePath = process.env.REACT_APP_BASE_PATH;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [signUpActive, setSignUpActive] = useState(false);
@@ -120,7 +121,7 @@ const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
           sessionStorage.setItem('userId', response.data.userId);
           sessionStorage.setItem('userName', response.data.userName);
           setIsLoggedIn(true);
-          navigate('/todo');
+          navigate('/dashboard');
           successToast(response.data.message);
         }
       }).catch((error) => {
