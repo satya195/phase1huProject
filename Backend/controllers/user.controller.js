@@ -1,4 +1,5 @@
 import UserList from "../models/users.models.js";
+import PromptList from "../models/prompts.models.js";
 
 export const addUser = async (req, res) => {
     const user = req.body;
@@ -70,6 +71,40 @@ export const loginUser = async (req, res) => {
         }
     } catch (error) {
         console.error("Error in fetching user:", error.message);
+        res.status(500).json({ 
+            success: false, 
+            message: "Server error" 
+        });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    const { userId } = req.body; // Only userId is provided
+
+    try {
+        // Find the user in the UserList by userId
+        const userLogin = await UserList.findOne({ userId });
+
+        if (!userLogin) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "User not found" 
+            });
+        }
+
+        // Delete the user from UserList
+        await UserList.deleteOne({ userId });
+
+        // Delete all tasks associated with the user from TaskList
+        await PromptList.deleteMany({ userId });
+
+        return res.status(200).json({
+            success: true,
+            message: `User and their associated tasks have been deleted successfully`
+        });
+
+    } catch (error) {
+        console.error("Error in deleting user account:", error.message);
         res.status(500).json({ 
             success: false, 
             message: "Server error" 
