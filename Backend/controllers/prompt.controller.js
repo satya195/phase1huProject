@@ -1,20 +1,18 @@
 import UserList from "../models/users.models.js";
 import PromptList from "../models/prompts.models.js";
+import axios from "axios";
 
 export const analyzePromptSentiment = async (req, res) => {
     const { prompt, promptId } = req.body;
     const userId = req.user.id;
 
-    let promptResponse = '';
-    if (prompt.includes('happy') || prompt.includes('good')) {
-        promptResponse = 'Positive';
-    } else if (prompt.includes('sad') || prompt.includes('bad')) {
-        promptResponse = 'Negative';
-    } else {
-        promptResponse = 'Neutral';
-    }
+    const pythonResponse = await axios.post("http://localhost:8000/analyze_sentiment", {
+        paragraph: prompt,
+    });
 
-    const promptInfo = { userId, prompt, promptId, promptResponse };
+    const promptResponse = pythonResponse.data.sentiment || "Unknown";
+    const promptResponseReason = pythonResponse.data.reason || "No reason provided.";
+    const promptInfo = { userId, prompt, promptId, promptResponse, promptResponseReason };
     const newPrompt = new PromptList(promptInfo);
 
     try {
