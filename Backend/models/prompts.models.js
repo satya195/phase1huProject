@@ -16,6 +16,10 @@ const promptSchema = mongoose.Schema({
     promptResponse: {
         type: String,
         required: true,
+    },
+    promptResponseReason: {
+        type: String,
+        required: false,
     }
 }, {
     timestamps: true,

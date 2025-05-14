@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
   const userId = sessionStorage.getItem('userId') || '';
   const userName = sessionStorage.getItem('userName') || '';
   const [inputText, setInputText] = useState('');
-  const [history, setHistory] = useState<{ promptId: string; prompt: string; response: string }[]>([]);
+  const [history, setHistory] = useState<{ promptId: string; prompt: string; response: string; reason: string }[]>([]);
 
   const getTokenFromCookie = () => {
     const name = "token=";
@@ -28,10 +28,10 @@ const Dashboard: React.FC = () => {
   };
   const token = getTokenFromCookie();
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchAllPrompts();
-    console.log("Cookies available in Dashboard:",getTokenFromCookie());
-  },[])
+    console.log("Cookies available in Dashboard:", getTokenFromCookie());
+  }, [])
 
   const successToast = (message: string) =>
     toast.success(message, {
@@ -66,10 +66,10 @@ const Dashboard: React.FC = () => {
 
   const handleDeleteAccount = () => {
     axios
-      .post(`/api/delUserAcc`, { userId: userId },{
+      .post(`/api/delUserAcc`, { userId: userId }, {
         headers: {
-            Authorization: `Bearer ${token}`
-          }
+          Authorization: `Bearer ${token}`
+        }
       })
       .then((response) => {
         if (response.status === 200) {
@@ -84,25 +84,25 @@ const Dashboard: React.FC = () => {
       });
   };
 
-  const analyzeSentiment = () => {
+  const analyzeSentiment = async () => {
     if (inputText.trim() === '') {
       errorToast('Please enter some text');
       return;
     }
-    axios.post(`/api/analyzePromptSentiment`, {
-        userId : userId,
-        prompt : inputText,
-        promptId :uuidv4()
-      },{
-        headers: {
-            Authorization: `Bearer ${token}`
-          }
-      })
+    await axios.post(`/api/analyzePromptSentiment`, {
+      userId: userId,
+      prompt: inputText,
+      promptId: uuidv4()
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then((response) => {
         if (response.status === 200) {
-            console.log("analyzePromptSentiment Executed !!",response);
-            fetchAllPrompts();
-            successToast("New Prompt successfully added !!!");
+          console.log("analyzePromptSentiment Executed !!", response);
+          fetchAllPrompts();
+          successToast("New Prompt successfully added !!!");
         }
       }).catch((error) => {
         errorToast(error.response.data.message);
@@ -110,22 +110,23 @@ const Dashboard: React.FC = () => {
       });
   };
 
-  const fetchAllPrompts = () =>{
+  const fetchAllPrompts = () => {
     axios.post(`/api/getAllPrompts`, {
-        userId : userId
-      },{
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-      })
+      userId: userId
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then((response) => {
         if (response.status === 200) {
-           console.log("fetch all Prompts Executed !!");
-           console.log("fetch all response",response.data);
-           const mapped = response.data.data.map((item: any) => ({
+          console.log("fetch all Prompts Executed !!");
+          console.log("fetch all response", response.data);
+          const mapped = response.data.data.map((item: any) => ({
             promptId: item.promptId,
             prompt: item.prompt,
-            response: item.promptResponse
+            response: item.promptResponse,
+            reason: item.promptResponseReason
           }));
           setHistory(mapped);
         }
@@ -159,7 +160,7 @@ const Dashboard: React.FC = () => {
 
         {history.length > 0 && (
           <div className="analysis-history">
-          {history.map((item) => (
+            {history.map((item) => (
               <div key={item.promptId} className="analysis-table">
                 <div className="row">
                   <div className="column label">Prompt</div>
@@ -168,6 +169,10 @@ const Dashboard: React.FC = () => {
                 <div className="row">
                   <div className="column label">Response</div>
                   <div className="column content">{item.response}</div>
+                </div>
+                <div className="row">
+                  <div className="column label">Reason</div>
+                  <div className="column content">{item.reason}</div>
                 </div>
               </div>
             ))}
