@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 interface LandingPageProps {
-    setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsLoggedIn?: React.Dispatch<React.SetStateAction<boolean>>;
   }
 const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
   const navigate = useNavigate(); 
@@ -121,7 +121,7 @@ const LoginPagePhase1: React.FC<LandingPageProps> = ({ setIsLoggedIn }) => {
           sessionStorage.setItem('userId', response.data.user.userId);
           sessionStorage.setItem('userName', response.data.user.userName);
           Cookies.set('token', response.data.token, { expires: 1, secure: true });
-          setIsLoggedIn(true);
+          setIsLoggedIn?.(true);
           navigate('/dashboard');
           successToast(response.data.message);
         }

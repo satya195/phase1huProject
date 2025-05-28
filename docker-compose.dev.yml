@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # MongoDB Database (same as production)
+  mongodb:
+    image: mongo:7.0
+    container_name: stinger-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - stinger-dev-network
+
+  # Backend Service (Development mode with hot reload)
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile.dev
+    container_name: stinger-backend-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/stinger_dev?authSource=admin
+      - JWT_SECRET=dev-jwt-secret-key
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - mongodb
+    networks:
+      - stinger-dev-network
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # AI Service (Development mode)
+  ai-service:
+    build:
+      context: ./llamaAi
+      dockerfile: Dockerfile.dev
+    container_name: stinger-ai-service-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - stinger-dev-network
+    volumes:
+      - ./llamaAi:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend Service (Development mode with hot reload)
+  frontend:
+    build:
+      context: ./Fontend
+      dockerfile: Dockerfile.dev
+    container_name: stinger-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - stinger-dev-network
+    volumes:
+      - ./Fontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+volumes:
+  mongodb_dev_data:
+
+networks:
+  stinger-dev-network:
+    driver: bridge 

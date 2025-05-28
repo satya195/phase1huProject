@@ -6,21 +6,46 @@ export const analyzePromptSentiment = async (req, res) => {
     const { prompt, promptId } = req.body;
     const userId = req.user.id;
 
-    const pythonResponse = await axios.post("http://localhost:8000/analyze_sentiment", {
-        paragraph: prompt,
-    });
-
-    const promptResponse = pythonResponse.data.sentiment || "Unknown";
-    const promptResponseReason = pythonResponse.data.reason || "No reason provided.";
-    const promptInfo = { userId, prompt, promptId, promptResponse, promptResponseReason };
-    const newPrompt = new PromptList(promptInfo);
-
     try {
+        const aiServiceUrl = process.env.AI_SERVICE_URL || "http://ai-service:8000";
+        
+        // Add timeout and better error handling
+        const pythonResponse = await axios.post(`${aiServiceUrl}/analyze_sentiment`, {
+            paragraph: prompt,
+        }, {
+            timeout: 30000, // 30 second timeout
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const promptResponse = pythonResponse.data.sentiment || "Unknown";
+        const promptResponseReason = pythonResponse.data.reason || "No reason provided.";
+        const promptInfo = { userId, prompt, promptId, promptResponse, promptResponseReason };
+        const newPrompt = new PromptList(promptInfo);
+
         await newPrompt.save();
         res.status(200).json({ success: true, data: newPrompt });
     } catch (error) {
         console.error("error in creating prompt:", error.message);
-        res.status(500).json({ success: false, message: "server Error" });
+        
+        // Provide specific error messages based on the error type
+        if (error.code === 'ECONNREFUSED') {
+            return res.status(503).json({ 
+                success: false, 
+                message: "AI service is starting up. Please try again in a few minutes." 
+            });
+        } else if (error.code === 'ETIMEDOUT') {
+            return res.status(504).json({ 
+                success: false, 
+                message: "AI service is taking longer than expected. Please try again." 
+            });
+        } else {
+            return res.status(500).json({ 
+                success: false, 
+                message: "Unable to analyze sentiment at the moment. Please try again later." 
+            });
+        }
     }
 };
 

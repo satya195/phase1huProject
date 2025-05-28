@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: stinger-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - stinger-network
+
+  # Backend Service
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: stinger-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/stinger?authSource=admin
+      - JWT_SECRET=iAmAdiscoDancer9999323223423924823@!___22efw4r24
+    depends_on:
+      - mongodb
+      - ai-service
+    networks:
+      - stinger-network
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+
+  # AI Service (Python FastAPI)
+  ai-service:
+    build:
+      context: ./llamaAi
+      dockerfile: Dockerfile
+    container_name: stinger-ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - stinger-network
+    volumes:
+      - ./llamaAi:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./Fontend
+      dockerfile: Dockerfile
+    container_name: stinger-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - stinger-network
+    volumes:
+      - ./Fontend:/app
+      - /app/node_modules
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: stinger-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+      - ai-service
+    networks:
+      - stinger-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  stinger-network:
+    driver: bridge 

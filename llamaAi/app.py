@@ -81,6 +81,12 @@ def start_ollama():
 start_ollama()
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for container monitoring"""
+    return JSONResponse(content={"status": "healthy", "service": "ai-sentiment-analysis"})
+
+
 @app.post("/analyze_sentiment")
 async def analyze_sentiment(input_data: ParagraphInput):
     sentiment, reason = classify_sentiment(input_data.paragraph)
