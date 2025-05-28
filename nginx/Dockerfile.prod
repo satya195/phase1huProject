@@ -1,0 +1,41 @@
+FROM nginx:alpine
+
+# Install additional packages for SSL and security
+RUN apk add --no-cache \
+    openssl \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Create nginx user and directories
+RUN addgroup -g 101 -S nginx \
+    && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+
+# Create necessary directories
+RUN mkdir -p /etc/nginx/ssl \
+    && mkdir -p /var/log/nginx \
+    && mkdir -p /var/cache/nginx \
+    && chown -R nginx:nginx /var/cache/nginx \
+    && chown -R nginx:nginx /var/log/nginx
+
+# Copy SSL certificates (if available)
+COPY ssl/ /etc/nginx/ssl/
+
+# Copy production nginx configuration
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+
+# Copy custom error pages
+COPY error-pages/ /usr/share/nginx/html/error-pages/
+
+# Set proper permissions
+RUN chown -R nginx:nginx /etc/nginx/ssl \
+    && chmod 600 /etc/nginx/ssl/* || true
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Expose ports
+EXPOSE 80 443
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"] 

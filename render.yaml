@@ -1,0 +1,85 @@
+services:
+  # Frontend Service
+  - type: web
+    name: stinger-frontend
+    env: docker
+    dockerfilePath: ./Fontend/Dockerfile
+    dockerContext: ./Fontend
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: VITE_API_URL
+        value: https://stinger-backend.onrender.com
+    domains:
+      - stinger-app.onrender.com
+
+  # Backend Service
+  - type: web
+    name: stinger-backend
+    env: docker
+    dockerfilePath: ./Backend/Dockerfile
+    dockerContext: ./Backend
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: MONGO_URI
+        fromDatabase:
+          name: stinger-mongodb
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_SERVICE_URL
+        value: https://stinger-ai-service.onrender.com
+    domains:
+      - stinger-backend.onrender.com
+
+  # AI Service
+  - type: web
+    name: stinger-ai-service
+    env: docker
+    dockerfilePath: ./llamaAi/Dockerfile
+    dockerContext: ./llamaAi
+    plan: starter
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+    domains:
+      - stinger-ai-service.onrender.com
+
+  # Nginx Reverse Proxy
+  - type: web
+    name: stinger-nginx
+    env: docker
+    dockerfilePath: ./nginx/Dockerfile.render
+    dockerContext: ./nginx
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: FRONTEND_URL
+        value: https://stinger-frontend.onrender.com
+      - key: BACKEND_URL
+        value: https://stinger-backend.onrender.com
+      - key: AI_SERVICE_URL
+        value: https://stinger-ai-service.onrender.com
+    domains:
+      - stinger.onrender.com
+
+databases:
+  - name: stinger-mongodb
+    databaseName: stinger
+    user: stinger_user
+    plan: free
+    region: oregon 
