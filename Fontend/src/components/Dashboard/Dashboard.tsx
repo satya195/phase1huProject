@@ -79,7 +79,8 @@ const Dashboard: React.FC = () => {
         }
       })
       .catch((error) => {
-        errorToast(error.response.data.message);
+        const errorMessage = error.response?.data?.message || 'An error occurred while deleting account';
+        errorToast(errorMessage);
         console.log(error);
       });
   };
@@ -89,6 +90,13 @@ const Dashboard: React.FC = () => {
       errorToast('Please enter some text');
       return;
     }
+    
+    // Show loading toast
+    const loadingToastId = toast.loading("Analyzing sentiment...", {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+    
     await axios.post(`/api/analyzePromptSentiment`, {
       userId: userId,
       prompt: inputText,
@@ -102,10 +110,17 @@ const Dashboard: React.FC = () => {
         if (response.status === 200) {
           console.log("analyzePromptSentiment Executed !!", response);
           fetchAllPrompts();
+          setInputText(''); // Clear input after successful submission
+          
+          // Dismiss loading toast and show success
+          toast.dismiss(loadingToastId);
           successToast("New Prompt successfully added !!!");
         }
       }).catch((error) => {
-        errorToast(error.response.data.message);
+        // Dismiss loading toast and show error
+        toast.dismiss(loadingToastId);
+        const errorMessage = error.response?.data?.message || 'An error occurred during sentiment analysis';
+        errorToast(errorMessage);
         console.log(error);
       });
   };
@@ -131,7 +146,8 @@ const Dashboard: React.FC = () => {
           setHistory(mapped);
         }
       }).catch((error) => {
-        errorToast(error.response.data.message);
+        const errorMessage = error.response?.data?.message || 'An error occurred while fetching prompts';
+        errorToast(errorMessage);
         console.log(error);
       });
   }
