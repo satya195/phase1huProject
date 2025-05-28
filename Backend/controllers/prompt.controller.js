@@ -1,6 +1,6 @@
 import UserList from "../models/users.models.js";
 import PromptList from "../models/prompts.models.js";
-import axios from "axios";
+import axios from "axios"; 
 
 export const analyzePromptSentiment = async (req, res) => {
     const { prompt, promptId } = req.body;
