@@ -89,25 +89,38 @@ const Dashboard: React.FC = () => {
       errorToast('Please enter some text');
       return;
     }
-    await axios.post(`/api/analyzePromptSentiment`, {
-      userId: userId,
-      prompt: inputText,
-      promptId: uuidv4()
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          console.log("analyzePromptSentiment Executed !!", response);
-          fetchAllPrompts();
-          successToast("New Prompt successfully added !!!");
+
+    // Show loading toast
+    const loadingToastId = toast.loading('Analyzing sentiment...', {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+
+    try {
+      const response = await axios.post(`/api/analyzePromptSentiment`, {
+        userId: userId,
+        prompt: inputText,
+        promptId: uuidv4()
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      }).catch((error) => {
-        errorToast(error.response.data.message);
-        console.log(error);
       });
+
+      if (response.status === 200) {
+        console.log("analyzePromptSentiment Executed !!", response);
+        fetchAllPrompts();
+        // Dismiss loading toast and show success
+        toast.dismiss(loadingToastId);
+        successToast("New Prompt successfully added !!!");
+        setInputText(''); // Clear the input after successful analysis
+      }
+    } catch (error: any) {
+      // Dismiss loading toast and show error
+      toast.dismiss(loadingToastId);
+      errorToast(error.response?.data?.message || 'An error occurred');
+      console.log(error);
+    }
   };
 
   const fetchAllPrompts = () => {
